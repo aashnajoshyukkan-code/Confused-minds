@@ -2,34 +2,34 @@
 
 
 
-# [Project Name] 🎯
+# [KirukkanBoard] 🎯
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: [Confused minds]
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
+- Team Lead: [Aashna Joshy] - [Christ College Of Engineering,Irinjalakuda]
+- Member 2: [Adhiya Jino] - [Christ College Of Engineering,Irinjalakuda]
 - Member 3: [Name] - [College]
 
 ### Project Description
-[2-3 lines about what your project does]
+[KirukkanBoard is a keyboard that lets you type by drawing circles on the screen with your fingers.It takes the simple act of typing into a complex workout for your wrist.]
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+[The traditional keyboards are too fast, too efficient, and too easy to use. Typing a single sentence takes mere seconds-leaving people with far too much free time and disturbingly intact wrists.  ]
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+[We built a keyboard where every letter requires you to physically draw circles until you complete a full rotation-sometimes several. Want to type the number 9? That is 36 circles! Want a "/"? CONGRATULATIONS, you have now drawn 40 circles for one character. Efficiency has been successfully eliminated.]
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+- [HTML5,CSS3,JavaScript]
+- [None]
+- [None]
+- [VS Code, GitHub, Google Gemini, Claude AI, ChatGPT]
 
 For Hardware:
 - [List main components]
@@ -48,14 +48,14 @@ For Software:
 For Software:
 
 # Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+https://drive.google.com/file/d/1jGgq49T7MYbDAwFqbOHKypQsfheLPOTL/view?usp=drive_link
+How to write a character
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
+https://drive.google.com/file/d/1YqWYdi47FyMBe9YbbPYWO40kqMxa3-A1/view?usp=drive_link
+Find the score, time, circle count, speed etc.
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+https://drive.google.com/file/d/1rmypjAbCSYjHhHCBLWtJfp30MrjzszfW/view?usp=drive_link
+Review window 
 
 # Diagrams
 ![Workflow](Add your workflow/architecture diagram here)
@@ -89,8 +89,12 @@ For Hardware:
 [Add any extra demo materials/links]
 
 ## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
+- [Aashna Joshy]: [Core geesture-recognition engine(circle tracking,rotation detection,tap gestures)
+- Character mapping logic(clockwise/anticlockwise letter, number,and symbol assignment)
+- Cover page, disclaimer and overall UI styling]
+- [Adhiya Jino]: [Challenge mode(target sentences, timer, accuracy/speed, calculation, result modal)
+- Theme system(10 visual themes, accent colours, background switching)
+- Spin speed meter and reactive visual feedback]
 - [Name 3]: [Specific contributions]
 
 ---
