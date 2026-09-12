@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KirukkanBoard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            transition: background 0.4s ease;
+        }
+
+        /* Cover Page Styling */
+        #cover-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #1e1e2d 0%, #0a0a0f 100%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        #cover-page h1 {
+            font-size: 3.5rem;
+            color: #00e676;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+            letter-spacing: 2px;
+        }
+
+        #cover-page .description {
+            font-size: 1.3rem;
+            color: #e0e0e0;
+            margin-bottom: 25px;
+            max-width: 650px;
+            line-height: 1.5;
+        }
+
+        #cover-page .disclaimer {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: #ffca28;
+            background-color: rgba(255, 202, 40, 0.08);
+            border: 2px dashed rgba(255, 202, 40, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 650px;
+            margin-bottom: 35px;
+            line-height: 1.6;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #welcome-btn {
+            background-color: #00e676;
+            color: #121212;
+            border: none;
+            padding: 16px 42px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
+            letter-spacing: 1px;
+        }
+
+        #welcome-btn:hover {
+            transform: scale(1.05);
+            background-color: #00c853;
+            box-shadow: 0 0 25px rgba(0, 230, 118, 0.7);
+        }
+
+        #welcome-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Dynamic Theme-Aware Output Window */
+        #text-editor {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.5rem;
+            line-height: 1.6;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+            overflow-y: auto;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 0.5s ease, background-color 0.5s ease, color 0.3s ease;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        #text-editor .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1.3em;
+            background-color: var(--accent-color, #00e676);
+            vertical-align: middle;
+            animation: blink 1s infinite;
+            box-shadow: 0 0 8px var(--accent-color, #00e676);
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Text Editor Theme Variants */
+        #text-editor.theme-default {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+        #text-editor.theme-space {
+            background-image: linear-gradient(to bottom, rgba(10, 15, 30, 0.85), rgba(5, 8, 20, 0.92)), 
+                              url('https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=1200&q=80');
+            color: #e0f2fe;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #text-editor.theme-nature {
+            background-image: linear-gradient(to bottom, rgba(15, 35, 20, 0.85), rgba(5, 20, 10, 0.92)), 
+                              url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80');
+            color: #f0fdf4;
+            font-family: 'Georgia', serif;
+        }
+        #text-editor.theme-city {
+            background-image: linear-gradient(to bottom, rgba(10, 15, 30, 0.85), rgba(5, 5, 15, 0.92)), 
+                              url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1200&q=80');
+            color: #ffd700;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        #text-editor.theme-sunset {
+            background-image: linear-gradient(to bottom, rgba(40, 10, 30, 0.8), rgba(20, 5, 15, 0.9)), 
+                              url('https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?auto=format&fit=crop&w=1200&q=80');
+            color: #ffedd5;
+            font-family: 'Trebuchet MS', sans-serif;
+        }
+        #text-editor.theme-underwater {
+            background-image: linear-gradient(to bottom, rgba(5, 30, 50, 0.85), rgba(2, 15, 30, 0.92)), 
+                              url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80');
+            color: #e0f2fe;
+            font-family: 'Lucida Console', Monaco, monospace;
+        }
+        #text-editor.theme-retro {
+            background-image: linear-gradient(to bottom, rgba(30, 10, 40, 0.85), rgba(15, 5, 20, 0.92)), 
+                              url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80');
+            color: #ff77a9;
+            font-family: 'Impact', 'Arial Black', sans-serif;
+        }
+        #text-editor.theme-cyberpunk {
+            background-image: linear-gradient(to bottom, rgba(10, 5, 25, 0.88), rgba(2, 1, 10, 0.95)), 
+                              url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80');
+            color: #00ffff;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+        #text-editor.theme-architecture {
+            background-image: linear-gradient(to bottom, rgba(20, 25, 35, 0.85), rgba(10, 12, 18, 0.92)), 
+                              url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80');
+            color: #f1f5f9;
+            font-family: 'Century Gothic', sans-serif;
+        }
+        #text-editor.theme-flowers {
+            background-image: linear-gradient(to bottom, rgba(35, 15, 25, 0.82), rgba(18, 5, 12, 0.9)), 
+                              url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1200&q=80');
+            color: #fce7f3;
+            font-family: 'Palatino', serif;
+        }
+        #text-editor.theme-desert {
+            background-image: linear-gradient(to bottom, rgba(45, 25, 10, 0.82), rgba(20, 10, 5, 0.92)), 
+                              url('https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80');
+            color: #fef3c7;
+            font-family: 'Garamond', serif;
+        }
+
+        #gesture-area {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            touch-action: none;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 0.5s ease;
+            cursor: crosshair;
+        }
+
+        /* Gesture Keyboard Theme Backgrounds */
+        #gesture-area.theme-default {
+            background-color: #121212;
+            background-image: radial-gradient(circle, #1a1a24 0%, #0d0d12 100%);
+        }
+        #gesture-area.theme-space {
+            background-image: radial-gradient(circle, rgba(15,23,42,0.75) 0%, rgba(3,7,18,0.95) 100%), 
+                              url('https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=1200&q=80');
+        }
+        #gesture-area.theme-nature {
+            background-image: radial-gradient(circle, rgba(20,50,30,0.7) 0%, rgba(5,20,10,0.92) 100%), 
+                              url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80');
+        }
+        #gesture-area.theme-city {
+            background-image: radial-gradient(circle, rgba(20,25,45,0.7) 0%, rgba(5,5,15,0.95) 100%), 
+                              url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1200&q=80');
+        }
+        #gesture-area.theme-sunset {
+            background-image: radial-gradient(circle, rgba(60,20,30,0.65) 0%, rgba(20,5,15,0.92) 100%), 
+                              url('https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?auto=format&fit=crop&w=1200&q=80');
+        }
+        #gesture-area.theme-underwater {
+            background-image: radial-gradient(circle, rgba(10,40,70,0.7) 0%, rgba(2,15,30,0.95) 100%), 
+                              url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80');
+        }
+        #gesture-area.theme-retro {
+            background-image: radial-gradient(circle, rgba(50,15,60,0.7) 0%, rgba(15,5,20,0.95) 100%), 
+                              url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80');
+        }
+        #gesture-area.theme-cyberpunk {
+            background-image: radial-gradient(circle, rgba(20,10,40,0.75) 0%, rgba(2,1,10,0.96) 100%), 
+                              url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80');
+        }
+        #gesture-area.theme-architecture {
+            background-image: radial-gradient(circle, rgba(30,35,45,0.7) 0%, rgba(10,12,18,0.95) 100%), 
+                              url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80');
+        }
+        #gesture-area.theme-flowers {
+            background-image: radial-gradient(circle, rgba(50,20,35,0.65) 0%, rgba(18,5,12,0.92) 100%), 
+                              url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1200&q=80');
+        }
+        #gesture-area.theme-desert {
+            background-image: radial-gradient(circle, rgba(60,35,15,0.65) 0%, rgba(20,10,5,0.92) 100%), 
+                              url('https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80');
+        }
+
+        #status-display {
+            position: absolute;
+            top: 15px;
+            font-size: 1.1rem;
+            color: #ccc;
+            pointer-events: none;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        /* Real-Time Spin Meter Positioned on Left */
+        #speed-meter-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            font-family: monospace;
+            pointer-events: none;
+            background-color: rgba(18, 18, 18, 0.8);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            z-index: 10;
+            backdrop-filter: blur(4px);
+        }
+        #speed-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #aaa;
+            letter-spacing: 1px;
+        }
+        #speed-bar {
+            font-size: 1rem;
+            color: var(--accent-color, #00e676);
+            margin: 4px 0;
+        }
+        #speed-mode {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #ffca28;
+            height: 1.2em;
+        }
+        
+        /* Dynamic Reactive Visual Circle Ring */
+        #reactive-circle {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 3px dashed var(--accent-color, #00e676);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(1);
+            transition: transform 0.05s linear, opacity 0.2s ease, border-color 0.2s ease;
+            box-shadow: 0 0 15px var(--accent-color, rgba(0, 230, 118, 0.3));
+        }
+
+        #live-counter {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--accent-color, #00e676);
+            pointer-events: none;
+            z-index: 2;
+            text-shadow: 0 0 10px rgba(0,0,0,0.9);
+        }
+        #instructions {
+            position: absolute;
+            bottom: 15px;
+            font-size: 0.85rem;
+            color: #bbb;
+            text-align: center;
+            line-height: 1.5;
+            pointer-events: none;
+            background: rgba(0,0,0,0.6);
+            padding: 6px 14px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Taskbar at Bottom */
+        #taskbar {
+            height: 55px;
+            background-color: #1a1a1a;
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            z-index: 20;
+            gap: 10px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+        .action-btn {
+            background-color: var(--accent-color, #00e676);
+            color: #121212;
+            border: none;
+            padding: 8px 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .action-btn:hover {
+            filter: brightness(1.1);
+        }
+        .action-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Themes Dropdown Menu */
+        #theme-dropdown {
+            display: none;
+            position: absolute;
+            bottom: 45px;
+            left: 0;
+            background-color: #242424;
+            border: 1px solid #444;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            overflow-y: auto;
+            max-height: 280px;
+            flex-direction: column;
+            width: 190px;
+            z-index: 30;
+        }
+        #theme-dropdown.show {
+            display: flex;
+        }
+        .theme-option {
+            padding: 10px 14px;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .theme-option:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        #target-display {
+            font-size: 0.95rem;
+            color: #ffca28;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 50%;
+        }
+
+        /* Result Modal Screen */
+        #result-modal, #confirm-modal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 30;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        #confirm-modal {
+            z-index: 40;
+        }
+        #result-card, .confirm-card {
+            background-color: #1e1e1e;
+            border: 2px solid var(--accent-color, #00e676);
+            border-radius: 12px;
+            padding: 25px 35px;
+            width: 85%;
+            max-width: 450px;
+            text-align: left;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        #result-card h2, .confirm-card h2 {
+            margin: 0 0 15px 0;
+            color: var(--accent-color, #00e676);
+            font-size: 1.6rem;
+            text-align: center;
+        }
+        .stat-line {
+            font-size: 1.1rem;
+            margin: 10px 0;
+            color: #e0e0e0;
+        }
+        #stat-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #ffca28;
+            font-weight: bold;
+            text-align: center;
+            font-size: 0.95rem;
+            border: 1px dashed rgba(255, 202, 40, 0.4);
+        }
+        #close-modal-btn, .confirm-btn {
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+            padding: 12px;
+            background-color: var(--accent-color, #00e676);
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #121212;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: filter 0.2s, transform 0.1s;
+        }
+        #close-modal-btn:hover, .confirm-btn:hover {
+            filter: brightness(1.1);
+        }
+        #close-modal-btn:active, .confirm-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Visual path feedback */
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        path {
+            fill: none;
+            stroke: var(--accent-color, #00e676);
+            stroke-width: 4;
+            stroke-linecap: round;
+            opacity: 0.6;
+            transition: stroke 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- KirukkanBoard Cover Page -->
+    <div id="cover-page">
+        <h1>KirukkanBoard</h1>
+        <div class="description">Description - A perfect app to relieve stress and anxiety.</div>
+        <div class="disclaimer">DISCLAIMER - This platform is scientifically proven to convert sane humans into unstable creature. Any productivity lost while using this app was probably going to be lost anyway.</div>
+        <button id="welcome-btn">WELCOME</button>
+    </div>
+
+    <!-- Dynamic Output Editor -->
+    <div id="text-editor" class="theme-default"><span id="content"></span><span class="cursor"></span></div>
+
+    <!-- Dynamic Gesture Workspace -->
+    <div id="gesture-area" class="theme-default">
+        <svg id="svg-canvas">
+            <path id="gesture-path" d="" />
+        </svg>
+        <div id="reactive-circle"></div>
+        <div id="status-display">Swipe in circles or tap</div>
+        
+        <!-- Spin Speed Meter -->
+        <div id="speed-meter-container">
+            <div id="speed-title">SPIN SPEED</div>
+            <div id="speed-bar">░░░░░░░░░░ 0%</div>
+            <div id="speed-mode"></div>
+        </div>
+
+        <div id="live-counter">---</div>
+        <div id="instructions">
+            <b>Anticlockwise:</b> 1-26 = a-z &nbsp;|&nbsp; 27-40 = & @ , = ? ! _ : ; # ' " \ |<br>
+            <b>Clockwise:</b> 1-26 = A-Z &nbsp;|&nbsp; 27-36 = 0-9 &nbsp;|&nbsp; 37-40 = + - * /<br>
+            <b>Single Tap:</b> Full Stop (.) &nbsp;|&nbsp; <b>Double Tap:</b> Delete &nbsp;|&nbsp; <b>Triple Tap:</b> Space
+        </div>
+
+        <!-- Result Screen Modal -->
+        <div id="result-modal">
+            <div id="result-card">
+                <h2><i>Completed!</i></h2>
+                <div class="stat-line" id="stat-time">⏱️ 0.00 seconds</div>
+                <div class="stat-line" id="stat-circles">🌀 0 circles</div>
+                <div class="stat-line" id="stat-taps">👆 0 taps</div>
+                <div class="stat-line" id="stat-accuracy">🎯 Accuracy: 100%</div>
+                <div class="stat-line" id="stat-speed">⚡ Speed: 0.00 chars/min</div>
+                <div class="stat-line" id="stat-level">Circle Level: <i>Beginner Spinner</i></div>
+                <div id="stat-message"></div>
+                <button id="close-modal-btn">Continue</button>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal Screen -->
+        <div id="confirm-modal">
+            <div class="confirm-card">
+                <h2>ARE YOU SURE????</h2>
+                <button class="confirm-btn" id="sure-btn-1">Sure, because my time has zero value</button>
+                <button class="confirm-btn" id="sure-btn-2">Totally, I love wasting my time.</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Taskbar -->
+    <div id="taskbar">
+        <div class="btn-group">
+            <button id="challenge-btn" class="action-btn">🎲 Challenge</button>
+            <button id="theme-btn" class="action-btn">🎨 Themes</button>
+            <div id="theme-dropdown">
+                <div class="theme-option" data-theme="default">⚙️ Default</div>
+                <div class="theme-option" data-theme="space">🚀 Space</div>
+                <div class="theme-option" data-theme="nature">🌿 Nature</div>
+                <div class="theme-option" data-theme="city">🌃 City at Night</div>
+                <div class="theme-option" data-theme="sunset">🌅 Sunset</div>
+                <div class="theme-option" data-theme="underwater">🪸 Underwater Life</div>
+                <div class="theme-option" data-theme="retro">🕹️ Retro</div>
+                <div class="theme-option" data-theme="cyberpunk">⚡ Cyberpunk</div>
+                <div class="theme-option" data-theme="architecture">🏛️ Architecture</div>
+                <div class="theme-option" data-theme="flowers">🌸 Flowers</div>
+                <div class="theme-option" data-theme="desert">🏜️ Desert</div>
+            </div>
+        </div>
+        <div id="target-display">Click Challenge to Start!</div>
+    </div>
+
+    <script>
+        // Cover Page Logic
+        const coverPage = document.getElementById('cover-page');
+        const welcomeBtn = document.getElementById('welcome-btn');
+
+        welcomeBtn.addEventListener('click', () => {
+            coverPage.style.display = 'none';
+        });
+
+        const editorWindow = document.getElementById('text-editor');
+        const editorContent = document.getElementById('content');
+        const gestureArea = document.getElementById('gesture-area');
+        const statusDisplay = document.getElementById('status-display');
+        const liveCounter = document.getElementById('live-counter');
+        const gesturePath = document.getElementById('gesture-path');
+        const reactiveCircle = document.getElementById('reactive-circle');
+        const speedBar = document.getElementById('speed-bar');
+        const speedMode = document.getElementById('speed-mode');
+
+        const challengeBtn = document.getElementById('challenge-btn');
+        const themeBtn = document.getElementById('theme-btn');
+        const themeDropdown = document.getElementById('theme-dropdown');
+        const targetDisplay = document.getElementById('target-display');
+        const resultModal = document.getElementById('result-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const confirmModal = document.getElementById('confirm-modal');
+        const sureBtn1 = document.getElementById('sure-btn-1');
+        const sureBtn2 = document.getElementById('sure-btn-2');
+
+        // Funny Completion Messages Array
+        const COMPLETION_MESSAGES = [
+            "YOU DID WIN, BUT AT WHAT COST? YOU COULD HAVE USED THE KEYBOARD....",
+            "YOU DID WIN, BUT AT WHAT COST? ARE YOU THIS BORED IN YOUR LIFE?",
+            "CONGRATULATIONS!! YOU WON THE CHALLENGE, THIS PROVES THAT YOU ARE MAD!!",
+            "CONGRATULATIONS!! YOU WON THE CHALLENGE, THE MENTAL ASYLUM ISN'T FAR AWAY",
+            "CONGRATULATIONS!! YOU HAVE COMPLETED THE CHALLENGE, BE SURE TO CONTACT THE NEAREST MENTAL ASYLUM"
+        ];
+
+        // Theme Configuration and Sentences
+        let currentTheme = 'default';
+        const THEME_CONFIG = {
+            default: {
+                accent: '#00e676',
+                sentences: [
+                    "Hi"
+                ]
+            },
+            space: {
+                accent: '#00d2ff',
+                sentences: [
+                    "Star orbit.",
+                    "Lunar landing.",
+                    "Cosmic spin.",
+                    "Black hole void.",
+                    "Galactic galaxy.",
+                    "Astronaut floating."
+                ]
+            },
+            nature: {
+                accent: '#76ff03',
+                sentences: [
+                    "Green leaf.",
+                    "Forest whisper.",
+                    "River flowing.",
+                    "Mountain peak.",
+                    "Blooming flower.",
+                    "Wild wilderness."
+                ]
+            },
+            city: {
+                accent: '#ffd700',
+                sentences: [
+                    "Neon skyline.",
+                    "Midnight avenue.",
+                    "City lights glow.",
+                    "Urban pulse.",
+                    "Downtown breeze.",
+                    "Streetlights shining."
+                ]
+            },
+            sunset: {
+                accent: '#ff6b6b',
+                sentences: [
+                    "Golden horizon.",
+                    "Warm evening sky.",
+                    "Crimson twilight.",
+                    "Sun dipping low.",
+                    "Fading light.",
+                    "Dusk reflection."
+                ]
+            },
+            underwater: {
+                accent: '#00e5ff',
+                sentences: [
+                    "Coral reef life.",
+                    "Deep ocean blue.",
+                    "Drifting jellyfish.",
+                    "Submarine depth.",
+                    "Silent tide.",
+                    "Aquatic wonder."
+                ]
+            },
+            retro: {
+                accent: '#ff007f',
+                sentences: [
+                    "Synthwave beat.",
+                    "Pixel arcade.",
+                    "Cassette rewind.",
+                    "Vaporwave vibe.",
+                    "Retro arcade.",
+                    "Eighty style."
+                ]
+            },
+            cyberpunk: {
+                accent: '#00ffff',
+                sentences: [
+                    "Digital matrix.",
+                    "Cyber grid link.",
+                    "Neon hack code.",
+                    "Futuristic pulse.",
+                    "Data stream line.",
+                    "Neural net flux."
+                ]
+            },
+            architecture: {
+                accent: '#e0e0e0',
+                sentences: [
+                    "Steel skyscraper.",
+                    "Modern facade.",
+                    "Arch structural.",
+                    "Concrete design.",
+                    "Blueprint drafting.",
+                    "Towering glass."
+                ]
+            },
+            flowers: {
+                accent: '#f48fb1',
+                sentences: [
+                    "Rose garden bloom.",
+                    "Petal in breeze.",
+                    "Cherry blossom.",
+                    "Sweet orchid smell.",
+                    "Floral meadow.",
+                    "Spring floral."
+                ]
+            },
+            desert: {
+                accent: '#ffb74d',
+                sentences: [
+                    "Golden sand dune.",
+                    "Desert oasis.",
+                    "Warm desert wind.",
+                    "Cactus blooming.",
+                    "Sun baked land.",
+                    "Endless desert."
+                ]
+            }
+        };
+
+        // Metrics tracking variables
+        let isChallengeActive = false;
+        let targetSentence = "";
+        let startTime = 0;
+        let totalCirclesCount = 0;
+        let totalTapCount = 0;
+        let totalGesturesEntered = 0;
+
+        // Gesture state
+        let isInteracting = false;
+        let points = [];
+        let totalRotation = 0;
+        let centerPoint = null;
+        let lastTime = 0;
+        
+        // Tap gesture state
+        let tapCount = 0;
+        let tapTimeout = null;
+
+        // Key map mappings
+        const ANTICLOCKWISE_EXTRA_KEYS = ['&', '@', ',', '=', '?', '!', '_', ':', ';', '#', "'", '"', '\\', '|'];
+        const CLOCKWISE_OPERATOR_KEYS = ['+', '-', '*', '/'];
+
+        // Theme menu events
+        themeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            themeDropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            themeDropdown.classList.remove('show');
+        });
+
+        document.querySelectorAll('.theme-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                const themeKey = e.target.getAttribute('data-theme');
+                setTheme(themeKey);
+            });
+        });
+
+        function setTheme(themeKey) {
+            if (!THEME_CONFIG[themeKey]) return;
+            currentTheme = themeKey;
+
+            // Apply theme classes to text editor & gesture area
+            editorWindow.className = `theme-${themeKey}`;
+            gestureArea.className = `theme-${themeKey}`;
+
+            const themeData = THEME_CONFIG[themeKey];
+            document.documentElement.style.setProperty('--accent-color', themeData.accent);
+
+            if (isChallengeActive) {
+                startNewChallenge();
+            } else {
+                targetDisplay.textContent = `Theme: ${themeKey.toUpperCase()} selected!`;
+            }
+        }
+
+        function getChar(count, isClockwise) {
+            if (count <= 0) return '';
+
+            if (count <= 26) {
+                const baseCode = isClockwise ? 65 : 97;
+                return String.fromCharCode(baseCode + (count - 1));
+            }
+
+            if (isClockwise) {
+                if (count <= 36) return String(count - 27);
+                const opIdx = count - 37;
+                if (opIdx < CLOCKWISE_OPERATOR_KEYS.length) return CLOCKWISE_OPERATOR_KEYS[opIdx];
+                return '';
+            } else {
+                const idx = count - 27;
+                if (idx < ANTICLOCKWISE_EXTRA_KEYS.length) return ANTICLOCKWISE_EXTRA_KEYS[idx];
+                return '';
+            }
+        }
+
+        // Challenge management
+        challengeBtn.addEventListener('click', startNewChallenge);
+        
+        closeModalBtn.addEventListener('click', () => {
+            resultModal.style.display = 'none';
+            confirmModal.style.display = 'flex';
+        });
+
+        const closeConfirmModal = () => {
+            confirmModal.style.display = 'none';
+        };
+
+        sureBtn1.addEventListener('click', closeConfirmModal);
+        sureBtn2.addEventListener('click', closeConfirmModal);
+
+        function startNewChallenge() {
+            const sentencePool = THEME_CONFIG[currentTheme].sentences;
+            targetSentence = sentencePool[Math.floor(Math.random() * sentencePool.length)];
+            targetDisplay.textContent = `Target: "${targetSentence}" (Press Enter to submit)`;
+            editorContent.textContent = "";
+            
+            isChallengeActive = true;
+            startTime = performance.now();
+            totalCirclesCount = 0;
+            totalTapCount = 0;
+            totalGesturesEntered = 0;
+            
+            statusDisplay.textContent = `Challenge Started! (${currentTheme.toUpperCase()})`;
+        }
+
+        function completeChallenge() {
+            if (!isChallengeActive) return;
+
+            const endTime = performance.now();
+            const timeTakenSec = ((endTime - startTime) / 1000).toFixed(2);
+            const currentText = editorContent.textContent;
+
+            const accuracy = Math.round((targetSentence.length / Math.max(totalGesturesEntered, targetSentence.length, 1)) * 100);
+            const charsPerMin = ((currentText.length / Math.max(timeTakenSec, 0.1)) * 60).toFixed(1);
+
+            let circleLevel = "Beginner Spinner";
+            if (currentText === targetSentence && accuracy >= 90 && timeTakenSec < 10) {
+                circleLevel = "Professional Spinner";
+            } else if (accuracy >= 80 && timeTakenSec < 18) {
+                circleLevel = "Intermediate Spinner";
+            } else if (accuracy < 70) {
+                circleLevel = "Wild Spinner";
+            }
+
+            // Pick a random message from the provided list
+            const randomMsg = COMPLETION_MESSAGES[Math.floor(Math.random() * COMPLETION_MESSAGES.length)];
+
+            document.getElementById('stat-time').textContent = `⏱️ ${timeTakenSec} seconds`;
+            document.getElementById('stat-circles').textContent = `🌀 ${totalCirclesCount} circles`;
+            document.getElementById('stat-taps').textContent = `👆 ${totalTapCount} taps`;
+            document.getElementById('stat-accuracy').textContent = `🎯 Accuracy: ${accuracy}%`;
+            document.getElementById('stat-speed').textContent = `⚡ Speed: ${charsPerMin} chars/min`;
+            document.getElementById('stat-level').innerHTML = `Circle Level: <i>${circleLevel}</i>`;
+            document.getElementById('stat-message').textContent = randomMsg;
+
+            resultModal.style.display = 'flex';
+            isChallengeActive = false;
+            targetDisplay.textContent = "Challenge Submitted!";
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && isChallengeActive) {
+                e.preventDefault();
+                completeChallenge();
+            }
+        });
+
+        // Touch & Mouse handlers
+        function handleStart(clientX, clientY) {
+            const rect = gestureArea.getBoundingClientRect();
+            const point = { x: clientX - rect.left, y: clientY - rect.top };
+
+            isInteracting = true;
+            points = [point];
+            totalRotation = 0;
+            centerPoint = null;
+            lastTime = performance.now();
+
+            reactiveCircle.style.opacity = '0.8';
+            reactiveCircle.style.left = `${point.x}px`;
+            reactiveCircle.style.top = `${point.y}px`;
+            reactiveCircle.style.transform = 'translate(-50%, -50%) scale(1)';
+
+            updatePathSVG();
+        }
+
+        function handleMove(clientX, clientY) {
+            if (!isInteracting) return;
+
+            const now = performance.now();
+            const deltaTime = (now - lastTime) / 1000;
+            lastTime = now;
+
+            const rect = gestureArea.getBoundingClientRect();
+            const currPoint = { x: clientX - rect.left, y: clientY - rect.top };
+
+            points.push(currPoint);
+            updatePathSVG();
+
+            if (points.length > 2) {
+                const prevPoint = points[points.length - 2];
+
+                if (!centerPoint) {
+                    centerPoint = currPoint;
+                } else {
+                    centerPoint = {
+                        x: centerPoint.x * 0.95 + currPoint.x * 0.05,
+                        y: centerPoint.y * 0.95 + currPoint.y * 0.05
+                    };
+                }
+
+                reactiveCircle.style.left = `${centerPoint.x}px`;
+                reactiveCircle.style.top = `${centerPoint.y}px`;
+
+                const v1 = { x: prevPoint.x - centerPoint.x, y: prevPoint.y - centerPoint.y };
+                const v2 = { x: currPoint.x - centerPoint.x, y: currPoint.y - centerPoint.y };
+
+                let angle = Math.atan2(v2.y, v2.x) - Math.atan2(v1.y, v1.x);
+                if (angle > Math.PI) angle -= 2 * Math.PI;
+                if (angle < -Math.PI) angle += 2 * Math.PI;
+
+                totalRotation += angle;
+
+                const completedCircles = Math.floor(Math.abs(totalRotation) / (2 * Math.PI));
+                const isClockwise = totalRotation > 0;
+                
+                const scaleFactor = 1 + (Math.min(Math.abs(totalRotation), 40 * 2 * Math.PI) / (2 * Math.PI)) * 0.12;
+                reactiveCircle.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;
+
+                const angularSpeed = Math.abs(angle) / (deltaTime || 0.016);
+                const maxSpeedThreshold = 25;
+                const speedPercentage = Math.min(Math.round((angularSpeed / maxSpeedThreshold) * 100), 100);
+
+                updateSpeedMeter(speedPercentage);
+
+                if (completedCircles > 0) {
+                    const char = getChar(completedCircles, isClockwise);
+                    liveCounter.textContent = char !== '' ? char : '✕';
+                    statusDisplay.textContent = char !== ''
+                        ? `${completedCircles} Circle(s) ${isClockwise ? 'Clockwise' : 'Anticlockwise'}`
+                        : 'Max reached (40)';
+                } else {
+                    liveCounter.textContent = "---";
+                    statusDisplay.textContent = "Tracing gesture...";
+                }
+            }
+        }
+
+        function updateSpeedMeter(percentage) {
+            const totalBlocks = 10;
+            const filledBlocks = Math.round((percentage / 100) * totalBlocks);
+            const emptyBlocks = totalBlocks - filledBlocks;
+            
+            const barGraphic = '█'.repeat(filledBlocks) + '░'.repeat(emptyBlocks);
+            speedBar.textContent = `${barGraphic} ${percentage}%`;
+
+            if (percentage < 30) {
+                speedMode.textContent = "🐢 Turtle mode";
+                speedMode.style.color = "#888";
+            } else if (percentage < 75) {
+                speedMode.textContent = "⚡ CIRCLE LIGHTNING";
+                speedMode.style.color = "#ffca28";
+            } else {
+                speedMode.textContent = "🚨 CALM DOWN";
+                speedMode.style.color = "#ff5252";
+            }
+        }
+
+        function handleEnd() {
+            if (!isInteracting) return;
+            isInteracting = false;
+
+            reactiveCircle.style.opacity = '0';
+            speedBar.textContent = "░░░░░░░░░░ 0%";
+            speedMode.textContent = "";
+
+            const completedCircles = Math.floor(Math.abs(totalRotation) / (2 * Math.PI));
+            const isClockwise = totalRotation > 0;
+
+            if (completedCircles > 0) {
+                const char = getChar(completedCircles, isClockwise);
+                if (char !== '') {
+                    editorContent.textContent += char;
+                    statusDisplay.textContent = `Typed: "${char}"`;
+                    totalCirclesCount += completedCircles;
+                    totalGesturesEntered++;
+                } else {
+                    statusDisplay.textContent = 'Max reached (40) — nothing typed';
+                }
+            } else {
+                handleTapGesture();
+            }
+
+            setTimeout(() => {
+                gesturePath.setAttribute('d', '');
+                liveCounter.textContent = "---";
+            }, 300);
+        }
+
+        function handleTapGesture() {
+            tapCount++;
+            clearTimeout(tapTimeout);
+
+            tapTimeout = setTimeout(() => {
+                totalTapCount += tapCount;
+                if (tapCount === 1) {
+                    editorContent.textContent += '.';
+                    statusDisplay.textContent = "Single Tap: Added Full Stop (.)";
+                    totalGesturesEntered++;
+                } else if (tapCount === 2) {
+                    let currentText = editorContent.textContent;
+                    if (currentText.length > 0) {
+                        editorContent.textContent = currentText.slice(0, -1);
+                        statusDisplay.textContent = "Double Tap: Deleted character";
+                    }
+                } else if (tapCount >= 3) {
+                    editorContent.textContent += ' ';
+                    statusDisplay.textContent = "Triple Tap: Added Space";
+                    totalGesturesEntered++;
+                }
+                tapCount = 0;
+            }, 300);
+        }
+
+        // Touch Listeners
+        gestureArea.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleStart(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+
+        gestureArea.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+
+        gestureArea.addEventListener('touchend', () => {
+            handleEnd();
+        });
+
+        // Mouse Listeners
+        gestureArea.addEventListener('mousedown', (e) => {
+            handleStart(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            handleMove(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('mouseup', () => {
+            handleEnd();
+        });
+
+        function updatePathSVG() {
+            if (points.length < 2) return;
+            let d = `M ${points[0].x} ${points[0].y}`;
+            for (let i = 1; i < points.length; i++) {
+                d += ` L ${points[i].x} ${points[i].y}`;
+            }
+            gesturePath.setAttribute('d', d);
+        }
+    </script>
+</body>
+</html>
