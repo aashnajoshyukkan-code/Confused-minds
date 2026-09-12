@@ -84,6 +84,8 @@ For Hardware:
 # Video
 [Add your demo video link here]
 *Explain what the video demonstrates*
+### Live
+https://confused-minds.vercel.app/
 
 # Additional Demos
 [Add any extra demo materials/links]
